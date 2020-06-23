@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Virtual Island</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <main>
+      <section>
+        <pre>
+    __                             ________  ___
+   / /___  __  ______  ____ ____  / ____/  |/  /
+  / / __ \/ / / / __ \/ __ `/ _ \/ /_  / /|_/ / 
+ / / /_/ / /_/ / / / / /_/ /  __/ __/ / /  / /  
+/_/\____/\__,_/_/ /_/\__, /\___/_/   /_/  /_/   
+                    /____/                      
+      </pre
+        >
+      </section>
+      <section>
+        <div id="animation"></div>
+      </section>
+      <section>
+        <div id="music-player">
+          <button id="toggle">▶</button>
+          <div>
+            <p id="song"></p>
+            <p id="artist"></p>
+          </div>
+          <div id="volume"></div>
+          <div id="listeners"></div>
+        </div>
+        <button id="cycle">cycle</button>
+      </section>
+    </main>
+    <audio src="http://localhost:1337/stream" id="audio" preload="none"></audio>
+    <script src="index.js"></script>
+  </body>
+</html>

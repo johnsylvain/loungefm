@@ -1,0 +1,67 @@
+* {
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  font-family: monospace;
+  background: black;
+  color: limegreen;
+  text-shadow: 0 0 8px rgba(0, 255, 0, 0.8);
+}
+
+main {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+section:first-child {
+  padding-top: 10ch;
+}
+
+section:nth-child(2) {
+  flex-grow: 1;
+}
+
+section:nth-child(3) {
+  padding-bottom: 10ch;
+}
+
+button#cycle {
+  border: 1px solid limegreen;
+  padding: 1ch 3ch;
+}
+
+button#toggle {
+  border: 1px solid limegreen;
+  width: 4ch;
+  height: 4ch;
+  margin-right: 1ch;
+}
+
+#music-player {
+  border: 1px solid limegreen;
+  padding: 2ch;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+#volume {
+  flex-grow: 1;
+  text-align: center;
+}
+
+#animation {
+  min-height: 40ch;
+}
