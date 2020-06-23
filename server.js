@@ -17,8 +17,8 @@ const app = polka();
 app.use(compress, assets);
 
 (async () => {
-  const pathToAudio =
-    process.env.NODE_ENV === "development" ? "audio" : process.cwd();
+  const pathToAudio = 'audio'
+  // process.env.NODE_ENV === "development" ? "audio" : process.cwd();
   await queue.loadSongs(pathToAudio);
   await queue.play();
 
@@ -33,8 +33,10 @@ app.use(compress, assets);
 
   app.get("/stream", (req, res) => {
     const { id, client } = queue.addClient();
-    send(res, 200, client, { "Content-Type": "audio/mpeg" });
-    req.clientId = id;
+    send(res, 200, client, {
+      "Content-Type": "audio/mpeg",
+      'Transfer-Encoding': 'chunked'
+    });
 
     req.on("close", () => {
       queue.removeClient(id);

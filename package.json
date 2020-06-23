@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev:client": "parcel watch src/index.html",
     "dev:server": "NODE_ENV=development nodemon server.js",
+    "dev:client": "parcel watch src/index.html",
     "dev": "concurrently npm:dev:*",
     "start": "npm run clean && parcel build src/index.html && nodemon server.js",
     "clean": "rm -rf dist .cache",
@@ -31,7 +31,6 @@
     "@hapi/hapi": "^19.1.1",
     "@polka/send-type": "^0.5.2",
     "compression": "^1.7.4",
-    "ffmetadata": "^1.6.0",
     "polka": "^0.5.2",
     "sirv": "^1.0.1",
     "throttle": "^1.0.3"

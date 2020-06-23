@@ -2,10 +2,7 @@ const fs = require("fs");
 const { PassThrough } = require("stream");
 const Throttle = require("throttle");
 const { ffprobe } = require("@dropb/ffprobe");
-const ffmetadata = require("ffmetadata");
-const { promisify } = require("util");
 const uuid = require("uuid/v4");
-const metadata = promisify(ffmetadata.read);
 
 class Queue {
   constructor() {
@@ -50,7 +47,6 @@ class Queue {
 
   async getNextSong() {
     const url = this.songs.shift();
-    const md = await metadata(url);
     let data;
     try {
       data = await ffprobe(url);
@@ -59,11 +55,15 @@ class Queue {
     }
     this.currentSong = {
       url,
-      artist: md.artist,
-      title: md.title,
-      duration: parseFloat(data.format.duration),
-      bitRate: data.format.bit_rate || 128000,
+      artist: data.format.tags.artist,
+      title: data.format.tags.title,
+      duration: Math.floor(parseFloat(data.format.duration)),
+      bitRate:
+        data && data.format && data.format.bit_rate
+          ? parseInt(data.format.bit_rate)
+          : 128000,
     };
+    this.songs.push(url);
     return this.currentSong;
   }
 
@@ -75,13 +75,15 @@ class Queue {
     if (this.songs.length) {
       const song = await this.getNextSong();
       const stream = fs.createReadStream(song.url);
-      const throttle = new Throttle((song.bitRate || 128000) / 8);
+      const throttle = new Throttle({
+        bps: song.bitRate / 8,
+        chunkSize: 512,
+      });
 
-      throttle
+      stream
+        .pipe(throttle)
         .on("data", (chunk) => this.broadcast(chunk))
         .on("end", () => this.play());
-
-      stream.pipe(throttle);
     }
   }
 }

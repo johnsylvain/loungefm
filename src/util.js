@@ -1,13 +1,13 @@
 export const animate = (() => {
   let id;
 
-  return (callback) => {
+  return (callback, timeout) => {
     if (id) {
       clearTimeout(id);
     }
 
     function loop() {
-      id = setTimeout(loop, 1000 / 1.5);
+      id = setTimeout(loop, timeout);
       callback();
     }
 
