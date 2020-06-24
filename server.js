@@ -1,11 +1,11 @@
-#!/usr/bin/env node
-
 const path = require("path");
 const sirv = require("sirv");
 const polka = require("polka");
 const compress = require("compression")();
 const send = require("@polka/send-type");
+require("dotenv").config();
 const queue = require("./engine/queue");
+const syncMusic = require("./jobs/sync-music");
 
 const PORT = process.env.PORT || 1337;
 
@@ -17,9 +17,8 @@ const app = polka();
 app.use(compress, assets);
 
 (async () => {
-  const pathToAudio = 'audio'
-  // process.env.NODE_ENV === "development" ? "audio" : process.cwd();
-  await queue.loadSongs(pathToAudio);
+  await syncMusic();
+  await queue.loadSongs("audio");
   await queue.play();
 
   app.get("/api", (req, res) => {
@@ -35,7 +34,7 @@ app.use(compress, assets);
     const { id, client } = queue.addClient();
     send(res, 200, client, {
       "Content-Type": "audio/mpeg",
-      'Transfer-Encoding': 'chunked'
+      "Transfer-Encoding": "chunked",
     });
 
     req.on("close", () => {

@@ -2,7 +2,7 @@
   "name": "loungefm",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "dev:server": "NODE_ENV=development nodemon server.js",
     "dev:client": "parcel watch src/index.html",
@@ -10,9 +10,6 @@
     "start": "npm run clean && parcel build src/index.html && nodemon server.js",
     "clean": "rm -rf dist .cache",
     "format": "pretty-quick"
-  },
-  "bin": {
-    "loungefm": "./server.js"
   },
   "keywords": [],
   "author": "John Sylvain",
@@ -30,8 +27,13 @@
     "@dropb/ffprobe": "^1.5.0",
     "@hapi/hapi": "^19.1.1",
     "@polka/send-type": "^0.5.2",
+    "aws-sdk": "^2.703.0",
     "compression": "^1.7.4",
+    "cron": "^1.8.2",
+    "dotenv": "^8.2.0",
+    "extract-zip": "^2.0.1",
     "polka": "^0.5.2",
+    "rimraf": "^3.0.2",
     "sirv": "^1.0.1",
     "throttle": "^1.0.3"
   }

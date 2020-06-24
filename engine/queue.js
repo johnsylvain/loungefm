@@ -22,7 +22,13 @@ class Queue {
   async loadSongs(dir) {
     return new Promise((resolve) => {
       fs.readdir(dir, { withFileTypes: true }, (err, files) => {
-        this.songs = this.shuffle(files.map((file) => `${dir}/${file.name}`));
+        const songs = files
+          .filter((file) => {
+            const parts = file.name.split(".");
+            return parts[parts.length - 1] === "mp3";
+          })
+          .map((file) => `${dir}/${file.name}`);
+        this.songs = this.shuffle(songs);
         resolve(this.songs);
       });
     });
@@ -63,6 +69,7 @@ class Queue {
           ? parseInt(data.format.bit_rate)
           : 128000,
     };
+    console.log(`Next song => ${this.currentSong.title}`);
     this.songs.push(url);
     return this.currentSong;
   }
