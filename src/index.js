@@ -53,6 +53,7 @@ animations.register("loading", animateLoading);
 animations.register("analyse", animateSound);
 
 function analyseAudio($audio) {
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
   const ctx = new AudioContext();
   const audioSrc = ctx.createMediaElementSource($audio);
   const analyser = ctx.createAnalyser();
@@ -69,8 +70,6 @@ function analyseAudio($audio) {
     }
   }, 1000);
 }
-
-analyseAudio($audio);
 
 function renderVolumeMeter(value = 0, layout = "vertical") {
   if (layout === "vertical") {
@@ -124,6 +123,7 @@ $toggle.addEventListener("click", () => {
     if (loading) {
       loading = false;
       animations.trigger("loading");
+      analyseAudio($audio);
     }
     $audio.play();
     $toggle.textContent = "❙❙";

@@ -17,7 +17,9 @@ const app = polka();
 app.use(compress, assets);
 
 (async () => {
-  await syncMusic();
+  if (process.env.NODE_ENV !== 'development') {
+    await syncMusic();
+  }
   await queue.loadSongs("audio");
   await queue.play();
 
