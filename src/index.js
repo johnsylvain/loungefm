@@ -108,7 +108,7 @@ poll("/api", 7000, (data) => {
   $song.textContent = data.title;
   $artist.textContent = data.artist;
   $listeners.textContent = `listeners: ${data.listeners}`;
-  const title = `loungeFM - ${data.title} - ${data.artist}`;
+  const title = `Lounge FM - ${data.title} - ${data.artist}`;
   if (document.title !== title) {
     document.title = title;
   }
