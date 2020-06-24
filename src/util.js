@@ -1,36 +1,22 @@
-export const animate = (() => {
+export const animate = (callback, timeout) => {
   let id;
 
-  return (callback, timeout) => {
-    if (id) {
-      clearTimeout(id);
-    }
+  function loop() {
+    id = setTimeout(loop, timeout);
+    callback();
+  }
 
-    function loop() {
-      id = setTimeout(loop, timeout);
-      callback();
-    }
+  loop();
 
-    loop();
-  };
-})();
-
-const getJSON = async (url) => {
-  const response = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  return response.json();
+  return () => clearTimeout(id);
 };
 
 export const poll = (url, timeout, cb) => {
   const fn = async () => {
-    const data = await getJSON(url);
-    cb(data);
+    const blob = await fetch(url);
+    const json = await blob.json();
+    cb(json);
   };
-  const id = setInterval(fn, timeout);
-  fn();
 
-  return () => clearInterval(id);
+  return animate(fn, timeout);
 };
