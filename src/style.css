@@ -92,3 +92,49 @@ button:focus {
   padding: 0ch;
   padding-left: 1ch;
 }
+
+@media (max-width: 768px) {
+  section:first-child > pre{
+    font-size: 10px;
+  }
+
+  #animation {
+    font-size: 10px;
+  }
+
+  section:last-child {
+    padding: 0;
+  }
+
+  #toggle {
+    font-size: 16px;
+  }
+
+  .player {
+    position: fixed;
+    bottom: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  section:first-child > pre{
+    font-size: 9px;
+  }
+
+  #animation {
+    font-size: 9px;
+  }
+
+  #toggle {
+    font-size: 20px;
+  }
+
+  .player__box:not(.player__box--small) {
+    display: block;
+  }
+
+  #volume {
+    margin-top: 2ch;
+  }
+
+}
