@@ -1,16 +1,18 @@
-# loungeFM
+# [Lounge FM](https://lounge.cool) 🍸
 
-> loungeFM livestreamed to your browser
+> Internet Radio
 
 ## Features
 
 - ASCII Animations
 - Livestreaming audio
+- PWA
 
 ## Dependencies
 
 - Node > 12
 - ffmpeg: https://formulae.brew.sh/formula/ffmpeg
+- MP3 files that have complete metadata (artist, title, bitrate, etc). Stored in `./audio`
 
 ## Development
 
@@ -21,13 +23,9 @@ brew install ffmpeg
 # Install Node dependencies
 yarn
 
-# Link binary
-yarn link --global
-
 # run dev server
 yarn dev
 
 # run prod server
-cd audio # location of mp3 files
-loungefm
+yarn start
 ```
