@@ -9,7 +9,6 @@
 }
 
 main {
-  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -27,10 +26,6 @@ section {
 
 section:first-child {
   padding-top: 10ch;
-}
-
-section:nth-child(2) {
-  flex-grow: 1;
 }
 
 section:nth-child(3) {
@@ -68,7 +63,9 @@ button:focus {
 }
 
 #animation {
-  min-height: 40ch;
+  min-height: 60ch;
+  display: flex;
+  align-items: center;
 }
 
 .player {

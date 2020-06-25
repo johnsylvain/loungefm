@@ -162,6 +162,7 @@ domElements.toggle.addEventListener("click", () => {
 
 const urls = [
   require("./scenes/bubbles.txt"),
+  require("./scenes/floppy.txt"),
   require("./scenes/island2.txt"),
   require("./scenes/computer.txt"),
   require("./scenes/lady.txt"),
@@ -171,7 +172,9 @@ const map = (url) => fetch(url).then((r) => r.text());
 
 Promise.all(urls.map(map)).then((s) => {
   let scene = window.localStorage.getItem("scene") || 0;
-  const scenes = s.map((s) => s.split("<<<FRAME>>>"));
+  const scenes = s.map((s) =>
+    s.split("<<<FRAME>>>").map((f) => f.split("\n").slice(1).join("\n"))
+  );
 
   domElements.cycle.addEventListener("click", () => {
     scene = (parseInt(scene) + 1) % scenes.length;

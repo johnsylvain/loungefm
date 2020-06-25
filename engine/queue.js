@@ -90,7 +90,8 @@ class Queue {
       stream
         .pipe(throttle)
         .on("data", (chunk) => this.broadcast(chunk))
-        .on("end", () => this.play());
+        .on("end", () => this.play())
+        .on("error", () => this.play());
     }
   }
 }
