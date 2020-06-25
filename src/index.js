@@ -14,7 +14,7 @@ const appState = {
   isLoading: true,
 };
 
-const animate = (callback, timeout) => {
+const interval = (callback, timeout) => {
   let id;
 
   function loop() {
@@ -27,6 +27,20 @@ const animate = (callback, timeout) => {
   return () => clearTimeout(id);
 };
 
+const fetch = (url, options = {}) => {
+  return new Promise((resolve, reject) => {
+    const request = new XMLHttpRequest();
+    const response = () => ({
+      text: () => Promise.resolve(request.responseText),
+      json: () => Promise.resolve(request.responseText).then(JSON.parse),
+    });
+    request.open(options.method || "get", url, true);
+    request.onload = () => resolve(response());
+    request.onerror = reject;
+    request.send(options.body || null);
+  });
+};
+
 const poll = (url, timeout, cb) => {
   const fn = async () => {
     const blob = await fetch(url);
@@ -34,7 +48,7 @@ const poll = (url, timeout, cb) => {
     cb(json);
   };
 
-  return animate(fn, timeout);
+  return interval(fn, timeout);
 };
 
 const createAnimationManager = () => ({
@@ -68,7 +82,7 @@ function animateLoading() {
       .padEnd(20, "░");
   }
 
-  return animate(() => {
+  return interval(() => {
     domElements.volume.textContent = renderLoadingBar(i);
     domElements.toggle.textContent = flipFrames[i % flipFrames.length];
     domElements.toggle.disabled = true;
@@ -99,7 +113,7 @@ function animateSound({ analyser, frequencyData }) {
     domElements.volume.textContent = bands;
   }
   loop();
-  return function () {};
+  return function () { };
 }
 
 musicPlayerAnimations.register("loading", animateLoading);
@@ -107,7 +121,7 @@ musicPlayerAnimations.register("analyse", animateSound);
 asciiAnimations.register("play", (frames) => {
   let frame = 0;
   domElements.animation.textContent = frames[0];
-  return animate(() => {
+  return interval(() => {
     frame = (frame + 1) % frames.length;
     domElements.animation.textContent = frames[frame];
   }, 500);
