@@ -1,0 +1,15 @@
+{
+  "name": "Lounge FM",
+  "short_name": "Lounge FM",
+  "start_url": ".",
+  "display": "fullscreen",
+  "background_color": "#001900",
+  "description": "Welcome to the Lounge. 24/7 Radio",
+  "icons": [
+    {
+      "src": "assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

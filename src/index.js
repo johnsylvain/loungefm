@@ -1,3 +1,7 @@
+if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+  navigator.serviceWorker.register('./service-worker.js')
+}
+
 const domElements = {
   toggle: document.querySelector("#toggle"),
   volume: document.querySelector("#volume"),
@@ -7,6 +11,7 @@ const domElements = {
   listeners: document.querySelector("#listeners"),
   animation: document.querySelector("#animation"),
   cycle: document.querySelector("#cycle"),
+  player: document.querySelector(".player"),
 };
 
 const appState = {
@@ -42,13 +47,19 @@ const fetch = (url, options = {}) => {
 };
 
 const poll = (url, timeout, cb) => {
+  let stop;
+
   const fn = async () => {
-    const blob = await fetch(url);
-    const json = await blob.json();
-    cb(json);
+    try {
+      const blob = await fetch(url);
+      const json = await blob.json();
+      cb(json);
+    } catch (e) {
+      stop();
+    }
   };
 
-  return interval(fn, timeout);
+  stop = interval(fn, timeout);
 };
 
 const createAnimationManager = () => ({
@@ -197,6 +208,10 @@ Promise.all(urls.map(map)).then((s) => {
   });
 
   asciiAnimations.trigger("play", scenes[scene]);
+}).catch(err => {
+  domElements.player.style.opacity = 0.5;
+  domElements.player.style.pointerEvents = 'none';
+  domElements.animation.textContent = 'Please connect to the internet.'
 });
 
 poll("/api", 7000, (data) => {
