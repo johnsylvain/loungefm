@@ -62,7 +62,7 @@ const poll = (url, timeout, cb) => {
   stop = interval(fn, timeout);
 };
 
-const createAnimationManager = () => ({
+const createAnimationMachine = () => ({
   unsubscribe: undefined,
   animations: {},
   register: function (name, fn) {
@@ -74,8 +74,8 @@ const createAnimationManager = () => ({
   },
 });
 
-const musicPlayerAnimations = createAnimationManager();
-const asciiAnimations = createAnimationManager();
+const musicPlayerAnimations = createAnimationMachine();
+const asciiAnimations = createAnimationMachine();
 
 function animateLoading() {
   let i = 0;

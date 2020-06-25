@@ -4,6 +4,7 @@ const path = require("path");
 const extract = require("extract-zip");
 const rimraf = require("rimraf");
 const cron = require("cron");
+const execa = require("execa");
 const { promisify } = require("util");
 const queue = require("../engine/queue");
 
@@ -17,8 +18,9 @@ const s3 = new aws.S3({
   endpoint: new aws.Endpoint("nyc3.digitaloceanspaces.com"),
 });
 
+const pathToAudio = path.join(__dirname, "../audio");
+
 async function downloadMusicArchive() {
-  const pathToAudio = path.join(__dirname, "../audio");
   if (fs.existsSync(pathToAudio)) {
     await remove(pathToAudio);
   }
@@ -34,18 +36,40 @@ async function downloadMusicArchive() {
 
 async function unzipArchive() {
   await extract(path.join(__dirname, "../audio/archive.zip"), {
-    dir: path.join(__dirname, "../audio"),
+    dir: pathToAudio,
   });
   await remove(path.join(__dirname, "../audio/archive.zip"));
 }
 
-// TODO
-async function compressFiles() {}
+function compressFiles() {
+  return new Promise((resolve) => {
+    fs.readdir(pathToAudio, { withFileTypes: true }, async (err, files) => {
+      fs.mkdirSync(path.join(pathToAudio, 'compressed'))
+      const compressionPromises = files
+        .filter((file) => {
+          const parts = file.name.split(".");
+          return parts[parts.length - 1] === "mp3";
+        }).map(song => {
+          const input = path.join(pathToAudio, song.name)
+          const output = path.join(pathToAudio, 'compressed', song.name)
+          return execa('ffmpeg', ['-i', input, '-b:a', '128k', `${output}`, '-y'])
+        })
+
+      const songs = await Promise.all(compressionPromises);
+
+      resolve(songs)
+    });
+  });
+}
 
 async function syncMusic() {
+  console.log(`[info] downloading music archive`)
   await downloadMusicArchive();
+  console.log(`[info] extracting music archive`)
   await unzipArchive();
-  await queue.loadSongs(path.join(__dirname, "../audio"));
+  // console.log(`[info] compressing audio`)
+  // await compressFiles();
+  await queue.loadSongs(pathToAudio);
 }
 
 const job = cron.job("0 2 * * *", syncMusic, null, false, "America/Chicago");

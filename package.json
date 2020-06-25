@@ -32,6 +32,7 @@
     "compression": "^1.7.4",
     "cron": "^1.8.2",
     "dotenv": "^8.2.0",
+    "execa": "^4.0.2",
     "extract-zip": "^2.0.1",
     "polka": "^0.5.2",
     "rimraf": "^3.0.2",

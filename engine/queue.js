@@ -58,8 +58,10 @@ class Queue {
       data = await ffprobe(url);
     } catch (e) {
       console.log(e);
+      return await this.getNextSong()
     }
-    this.currentSong = {
+
+    const currentSong = {
       url,
       artist: data.format.tags.artist,
       title: data.format.tags.title,
@@ -69,9 +71,10 @@ class Queue {
           ? parseInt(data.format.bit_rate)
           : 128000,
     };
-    console.log(`Next song => ${this.currentSong.title}`);
+
+    this.currentSong = currentSong;
     this.songs.push(url);
-    return this.currentSong;
+    return currentSong;
   }
 
   get current() {

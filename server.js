@@ -19,8 +19,9 @@ app.use(compress, assets);
 (async () => {
   if (process.env.NODE_ENV !== 'development') {
     await syncMusic();
+  } else {
+    await queue.loadSongs("audio");
   }
-  await queue.loadSongs("audio");
   await queue.play();
 
   app.get("/api", (req, res) => {
@@ -46,6 +47,6 @@ app.use(compress, assets);
 
   app.listen(PORT, (err) => {
     if (err) throw err;
-    console.log(`> Ready on localhost:${PORT}!`);
+    console.log(`> Lounge on http://localhost:${PORT} 🍸`);
   });
 })();
