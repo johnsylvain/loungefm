@@ -1,3 +1,11 @@
+body {
+  cursor: url("./assets/Cursor_1.png"), auto;
+}
+
+body.loading-cursor {
+  cursor: url("./assets/Cursor_12.png"), auto !important;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -35,11 +43,7 @@ section:nth-child(3) {
 button {
   border: 1px dashed limegreen;
   outline: none;
-  cursor: pointer;
-}
-
-button:disabled {
-  cursor: wait;
+  cursor: url('./assets/Cursor_15.png'), auto;
 }
 
 button#cycle {

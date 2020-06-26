@@ -28,6 +28,7 @@ app.use(compress, assets);
     send(res, 200, {
       artist: queue.current.artist,
       title: queue.current.title,
+      description: queue.current.description,
       duration: queue.current.duration,
       listeners: queue.clients.size,
     });

@@ -3,6 +3,7 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
 }
 
 const domElements = {
+  body: document.querySelector('body'),
   toggle: document.querySelector("#toggle"),
   volume: document.querySelector("#volume"),
   audio: document.querySelector("#audio"),
@@ -12,6 +13,7 @@ const domElements = {
   animation: document.querySelector("#animation"),
   cycle: document.querySelector("#cycle"),
   player: document.querySelector(".player"),
+  description: document.querySelector("#description"),
 };
 
 const appState = {
@@ -62,6 +64,15 @@ const poll = (url, timeout, cb) => {
   stop = interval(fn, timeout);
 };
 
+function findUrls(text) {
+  const reg = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)(?:[\.\!\/\\\w]*))?)/g;
+  if (text.indexOf('<script') > -1) return '';
+  return text.replace(reg, match => {
+    const url = match.replace('</span>', String.empty);
+    return `<a href="${url}" rel="noopener" target="_blank">${match}</a>`;
+  });
+}
+
 const createAnimationMachine = () => ({
   unsubscribe: undefined,
   animations: {},
@@ -96,14 +107,14 @@ function animateLoading() {
   return interval(() => {
     domElements.volume.textContent = renderLoadingBar(i);
     domElements.toggle.textContent = flipFrames[i % flipFrames.length];
-    domElements.toggle.disabled = true;
+    domElements.body.classList.add('loading-cursor')
     i++;
   }, 150);
 }
 
 function animateSound({ analyser, frequencyData }) {
   domElements.toggle.textContent = "❙❙";
-  domElements.toggle.disabled = false;
+  domElements.body.classList.remove('loading-cursor')
 
   function renderVolumeMeter(value = 0) {
     const length = 20;
@@ -218,6 +229,7 @@ poll("/api", 7000, (data) => {
   domElements.song.textContent = data.title;
   domElements.artist.textContent = data.artist;
   domElements.listeners.textContent = `listeners: ${data.listeners}`;
+  domElements.description.innerHTML = findUrls(data.description || '');
   const title = `Lounge FM - ${data.title} - ${data.artist}`;
   if (document.title !== title) {
     document.title = title;

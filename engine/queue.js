@@ -65,6 +65,7 @@ class Queue {
       url,
       artist: data.format.tags.artist,
       title: data.format.tags.title,
+      description: data.format.tags.comment,
       duration: Math.floor(parseFloat(data.format.duration)),
       bitRate:
         data && data.format && data.format.bit_rate
