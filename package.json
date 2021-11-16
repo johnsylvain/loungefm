@@ -28,7 +28,7 @@
     "@dropb/ffprobe": "^1.5.0",
     "@hapi/hapi": "^19.1.1",
     "@polka/send-type": "^0.5.2",
-    "aws-sdk": "^2.703.0",
+    "aws-sdk": "^2.814.0",
     "compression": "^1.7.4",
     "cron": "^1.8.2",
     "dotenv": "^8.2.0",
