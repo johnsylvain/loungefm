@@ -3,6 +3,7 @@ const { PassThrough } = require("stream");
 const Throttle = require("throttle");
 const { ffprobe } = require("@dropb/ffprobe");
 const uuid = require("uuid/v4");
+var jsmediatags = require("jsmediatags");
 
 class Queue {
   constructor() {
@@ -51,21 +52,34 @@ class Queue {
     this.clients.delete(id);
   }
 
+  async getArt(url) {
+    jsmediatags.read(url, {
+      onSuccess: async(tag) => {
+        return tag
+      },
+      onError: (error) => {
+        return null
+      }
+    });
+  }
+
   async getNextSong() {
+    let image = [];
     const url = this.songs.shift();
     let data;
     try {
       data = await ffprobe(url);
     } catch (e) {
-      console.log(e);
       return await this.getNextSong()
-    }
+    } 
 
     const currentSong = {
       url,
       artist: data.format.tags.artist,
       title: data.format.tags.title,
-      description: data.format.tags.comment,
+      genre: data.format.tags.genre,
+      Album: data.format.tags.album,
+      AlbumArtist: data.format.tags.album_artist,
       duration: Math.floor(parseFloat(data.format.duration)),
       bitRate:
         data && data.format && data.format.bit_rate

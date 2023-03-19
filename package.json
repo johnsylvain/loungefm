@@ -5,9 +5,8 @@
   "main": "server.js",
   "scripts": {
     "dev:server": "NODE_ENV=development nodemon server.js",
-    "dev:client": "parcel watch src/index.html",
     "dev": "concurrently npm:dev:*",
-    "start": "npm run clean && parcel build src/index.html && nodemon server.js",
+    "start": "npm run clean && nodemon server.js",
     "clean": "rm -rf dist .cache",
     "format": "pretty-quick"
   },
@@ -34,9 +33,11 @@
     "dotenv": "^8.2.0",
     "execa": "^4.0.2",
     "extract-zip": "^2.0.1",
+    "jsmediatags": "^3.9.7",
     "polka": "^0.5.2",
     "rimraf": "^3.0.2",
     "sirv": "^1.0.1",
+    "socket.io": "^4.6.1",
     "throttle": "^1.0.3"
   }
 }

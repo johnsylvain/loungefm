@@ -1,27 +1,14 @@
-const path = require("path");
-const sirv = require("sirv");
 const polka = require("polka");
-const compress = require("compression")();
 const send = require("@polka/send-type");
 require("dotenv").config();
 const queue = require("./engine/queue");
-const syncMusic = require("./jobs/sync-music");
 
-const PORT = process.env.PORT || 1337;
 
-const assets = sirv(path.join(__dirname, "dist"), {
-  immutable: true,
-});
-
+const PORT = process.env.PORT || 3000;
 const app = polka();
-app.use(compress, assets);
 
 (async () => {
-  if (process.env.NODE_ENV !== 'development') {
-    await syncMusic();
-  } else {
-    await queue.loadSongs("audio");
-  }
+  await queue.loadSongs("./audio");
   await queue.play();
 
   app.get("/api", (req, res) => {
@@ -48,6 +35,6 @@ app.use(compress, assets);
 
   app.listen(PORT, (err) => {
     if (err) throw err;
-    console.log(`> Lounge on http://localhost:${PORT} 🍸`);
+    console.log(`> radio on http://localhost:${PORT}`);
   });
 })();
