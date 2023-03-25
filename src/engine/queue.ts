@@ -1,24 +1,26 @@
-const fs = require("fs");
-const { PassThrough } = require("stream");
-const Throttle = require("throttle");
-const { ffprobe } = require("@dropb/ffprobe");
-const uuid = require("uuid/v4");
-var jsmediatags = require("jsmediatags");
+import * as fs from "fs";
+import { PassThrough } from "stream"; 
+import Throttle from "throttle"
+import {ffprobe} from "@dropb/ffprobe"
+import { UUID } from "bson";
 
 class Queue {
-  constructor() {
-    this.clients = new Map();
-    this.songs = [];
-  }
-
-  shuffle(a) {
-    let arr = [...a];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
+    clients: Map<any, any>;
+    songs: any[];
+    currentSong: { url: any; artist: any; title: any; description: any; duration: number; bitRate: number; };
+    constructor() {
+        this.clients = new Map();
+        this.songs = [];
     }
-    return arr;
-  }
+
+    shuffle(a) {
+        let arr = [...a];
+        for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
 
   async loadSongs(dir) {
     return new Promise((resolve) => {
@@ -43,7 +45,7 @@ class Queue {
 
   addClient() {
     const client = new PassThrough();
-    const id = uuid();
+    const id = new UUID();
     this.clients.set(id, client);
     return { id, client };
   }
@@ -52,34 +54,21 @@ class Queue {
     this.clients.delete(id);
   }
 
-  async getArt(url) {
-    jsmediatags.read(url, {
-      onSuccess: async(tag) => {
-        return tag
-      },
-      onError: (error) => {
-        return null
-      }
-    });
-  }
-
   async getNextSong() {
-    let image = [];
     const url = this.songs.shift();
     let data;
     try {
       data = await ffprobe(url);
     } catch (e) {
+      console.log(e);
       return await this.getNextSong()
-    } 
+    }
 
     const currentSong = {
       url,
       artist: data.format.tags.artist,
       title: data.format.tags.title,
-      genre: data.format.tags.genre,
-      Album: data.format.tags.album,
-      AlbumArtist: data.format.tags.album_artist,
+      description: data.format.tags.comment,
       duration: Math.floor(parseFloat(data.format.duration)),
       bitRate:
         data && data.format && data.format.bit_rate
@@ -117,3 +106,7 @@ class Queue {
 const queue = new Queue();
 
 module.exports = queue;
+
+export function addClient(): { id: any; client: any; } {
+    throw new Error("Function not implemented.");
+}
