@@ -1,25 +1,28 @@
-const fs = require("fs");
-const { PassThrough } = require("stream");
-const Throttle = require("throttle");
-const { ffprobe } = require("@dropb/ffprobe");
-const uuid = require("uuid/v4");
+import * as fs from "fs";
+import { PassThrough } from "stream"; 
+import Throttle from "throttle"
+import {ffprobe} from "@dropb/ffprobe"
+import { UUID } from "bson";
 
-class Queue {
-  constructor() {
-    this.clients = new Map();
-    this.songs = [];
-  }
-
-  shuffle(a) {
-    let arr = [...a];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
+export class Queue {
+  clients: Map<any, any>;
+  songs: any[];
+  currentSong: any;
+    constructor() {
+        this.clients = new Map();
+        this.songs = [];
     }
-    return arr;
-  }
 
-  async loadSongs(dir) {
+    shuffle(a) {
+        let arr = [...a];
+        for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+  async loadSongs(dir: string) {
     return new Promise((resolve) => {
       fs.readdir(dir, { withFileTypes: true }, (err, files) => {
         const songs = files
@@ -42,7 +45,7 @@ class Queue {
 
   addClient() {
     const client = new PassThrough();
-    const id = uuid();
+    const id = new UUID();
     this.clients.set(id, client);
     return { id, client };
   }
