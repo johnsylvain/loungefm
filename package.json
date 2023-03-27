@@ -5,10 +5,10 @@
   "main": "dist/app.js",
   "scripts": {
     "prettier-watch": "onchange 'src/**/*.ts' -- prettier --write {{changed}}",
-    "start": "tsc && node dist/app.js",
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "ts-node-dev --respawn -- src/app.ts",
+    "start:prod": "node dist/app.ts",
     "prettier-format": "prettier --config .prettierrc.json 'src/**/*.ts' --write"
   },
   "dependencies": {
