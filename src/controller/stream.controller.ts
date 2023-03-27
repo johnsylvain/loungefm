@@ -3,8 +3,8 @@ import * as queue from "./../engine/queue";
 
 export const getStreaming: RequestHandler = async (req, res) => {
   try {
-    const { client } = queue.addClient();
-    return res.status(200).send(client).type('audio/mpeg');;
+    //const { client } = queue.addClient();
+    return res.status(200);;
     } catch (error) {
     return res.status(303);
   }

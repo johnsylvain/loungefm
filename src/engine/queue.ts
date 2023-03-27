@@ -4,10 +4,10 @@ import Throttle from "throttle"
 import {ffprobe} from "@dropb/ffprobe"
 import { UUID } from "bson";
 
-class Queue {
-    clients: Map<any, any>;
-    songs: any[];
-    currentSong: { url: any; artist: any; title: any; description: any; duration: number; bitRate: number; };
+export class Queue {
+  clients: Map<any, any>;
+  songs: any[];
+  currentSong: any;
     constructor() {
         this.clients = new Map();
         this.songs = [];
@@ -22,7 +22,7 @@ class Queue {
         return arr;
     }
 
-  async loadSongs(dir) {
+  async loadSongs(dir: string) {
     return new Promise((resolve) => {
       fs.readdir(dir, { withFileTypes: true }, (err, files) => {
         const songs = files
@@ -106,7 +106,3 @@ class Queue {
 const queue = new Queue();
 
 module.exports = queue;
-
-export function addClient(): { id: any; client: any; } {
-    throw new Error("Function not implemented.");
-}

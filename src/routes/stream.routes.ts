@@ -16,7 +16,7 @@ const upload = multer({ storage })
 const router = Router();
 router.get("/", stream.getStreaming);
 router.post("/post", stream.postStreaming);
-router.get("/status", upload.any('file'), stream.getStatus);
-router.get("/upload", stream.upload);
+router.get("/status", stream.getStatus);
+router.get("/upload", upload.any('file'), stream.upload);
 
 export default router;

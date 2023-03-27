@@ -4,4 +4,4 @@ yarn.lock
 node_modules
 *.env
 .env
-.audio
+audio
