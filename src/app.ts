@@ -10,9 +10,10 @@ import { PassThrough } from "stream";
 import Throttle from "throttle";
 import {ffprobe} from "@dropb/ffprobe";
 import { UUID } from "bson";
+import './database'
 
 // import { Queue } from "./engine/queue";
-// import './database'
+// 
 dotenv.config()
 
 let clients = new Map()
