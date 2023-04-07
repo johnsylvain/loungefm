@@ -58,7 +58,6 @@ class Queue {
 
         const promises = filepaths.map(async (filepath) => {
             const bitrate = await this.getTrackBitrate(filepath);
-
             return { filepath, bitrate };
         });
 
