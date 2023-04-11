@@ -1,10 +1,9 @@
-import { Response, RequestHandler } from "express";
+import { Response, RequestHandler } from 'express'
 
 export const postFile: RequestHandler = async (req, res) => {
-  try {
-    return res.status(200);
+    try {
+        return res.status(200)
     } catch (error) {
-    return res.status(303);
-  }
-};
-
+        return res.status(303)
+    }
+}

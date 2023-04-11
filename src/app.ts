@@ -40,7 +40,28 @@ app.use(express.urlencoded({ extended: false }))
         queue.play()
     }
 
-    const download = (url: string) => {
+    const downloadAudioFile = (stream, uuid, tags): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                ffmpeg(stream)
+                    .audioBitrate(128)
+                    .save(`audio/${uuid}.mp3`)
+                    .on('progress', (p) => {
+                        readline.cursorTo(process.stdout, 0)
+                        process.stdout.write(`${p.targetSize}kb downloaded`)
+                    })
+                    .on('end', () => {
+                        NodeID3.write(tags, `audio/${uuid}.mp3`)
+                        resolve()
+                    })
+                    .on('error', (err) => {
+                        reject(err)
+                    })
+            }, 60000)
+        })
+    }
+
+    const download = async (url: string) => {
         try {
             let tags = null
             const uuid = uuidv4()
@@ -60,24 +81,7 @@ app.use(express.urlencoded({ extended: false }))
             })
 
             let start = Date.now()
-            ffmpeg(stream)
-                .audioBitrate(128)
-                .save(`audio/${uuid}.mp3`)
-                .on('progress', (p) => {
-                    readline.cursorTo(process.stdout, 0)
-                    process.stdout.write(`${p.targetSize}kb downloaded`)
-                })
-                .on('end', () => {
-                    downloads += 1
-                    logger.info(
-                        `\ndone, thanks - ${(Date.now() - start) / 1000}s`
-                    )
-
-                    NodeID3.write(tags, `audio/${uuid}.mp3`)
-                    if (playlist.length === downloads) {
-                        play()
-                    }
-                })
+            await downloadAudioFile(stream, uuid, tags)
         } catch (error) {
             logger.info('error:', error)
         }
