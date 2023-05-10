@@ -6,17 +6,14 @@ import cors from 'cors'
 import pino from 'pino'
 import queue from './engine/queue.engine'
 import './database'
-import ytdl from 'ytdl-core'
-import { v4 as uuidv4 } from 'uuid'
-import * as cron from 'node-cron'
-import { playlist } from './constants'
-import ffmpeg from 'fluent-ffmpeg'
-import readline from 'readline'
-import NodeID3 from 'node-id3'
+import multer from 'multer'
+import fs from 'fs'
+import { verifiedaccess } from 'googleapis/build/src/apis/verifiedaccess'
 
 dotenv.config()
 
-let downloads: number = 0
+let uploads: number = 0
+let state: string = 'idle'
 
 const logger = pino({ level: 'info' })
 const app = express()
@@ -29,65 +26,64 @@ const reqOptions = {
     },
 }
 
-app.use(helmet())
+app.use(
+    helmet({
+        crossOriginResourcePolicy: false,
+    })
+)
 app.use(morgan(`${process.env.MORGAN}`))
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
+
+if (!fs.existsSync('upload')) {
+    fs.mkdirSync('upload'), { recursive: true }
+}
+
+if (!fs.existsSync('upload/audio')) {
+    fs.mkdirSync('upload/audio'), { recursive: true }
+}
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'upload/audio')
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname)
+    },
+})
+
+const fileFilter = function (req, file, cb) {
+    if (!file.originalname.match(/\.(mp3)$/)) {
+        return cb(new Error('Only MP3 files are allowed!'), false)
+    }
+    cb(null, true)
+}
+
+const upload = multer({ storage: storage, fileFilter: fileFilter })
+
+app.post('/upload/audio', upload.single('mp3'), function (req, res) {
+    res.send('File uploaded successfully!')
+})
+
+app.get('/upload', (req, res) => {
+    res.sendFile(__dirname + '/pages/upload.html')
+})
 ;(async () => {
-    const play = async () => {
-        await queue.loadTracks('audio')
-        queue.play()
-    }
-
-    const downloadAudioFile = (stream, uuid, tags): Promise<void> => {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                ffmpeg(stream)
-                    .audioBitrate(128)
-                    .save(`audio/${uuid}.mp3`)
-                    .on('progress', (p) => {
-                        readline.cursorTo(process.stdout, 0)
-                        process.stdout.write(`${p.targetSize}kb downloaded`)
-                    })
-                    .on('end', () => {
-                        NodeID3.write(tags, `audio/${uuid}.mp3`)
-                        resolve()
-                    })
-                    .on('error', (err) => {
-                        reject(err)
-                    })
-            }, 60000)
-        })
-    }
-
-    const download = async (url: string) => {
-        try {
-            let tags = null
-            const uuid = uuidv4()
-
-            let stream = ytdl(url, {
-                quality: 'highestaudio',
-            }).on('info', (info) => {
-                const { videoDetails } = info
-                const { title, author } = videoDetails
-                const { name } = author
-                const artist = name.replace('- Topic', '')
-
-                tags = {
-                    title: title,
-                    artist: artist,
-                }
-            })
-
-            let start = Date.now()
-            await downloadAudioFile(stream, uuid, tags)
-        } catch (error) {
-            logger.info('error:', error)
+    const getFiles = async () => {
+        await queue.loadTracks('upload/audio')
+        uploads = parseInt(`${queue.tracks.length}`)
+        if (uploads > 0) {
+            state = 'uploaded'
         }
     }
 
-    app.get('/', (req, res) => {
+    const play = async () => {
+        queue.play()
+        state = 'playing'
+    }
+
+    app.get('/stream', (req, res) => {
         const { id, client } = queue.addClient()
         res.set({
             'Content-Type': 'audio/mp3',
@@ -99,15 +95,19 @@ app.use(express.urlencoded({ extended: false }))
         })
     })
 
+    app.get('/', (req, res) => {
+        res.sendFile(__dirname + '/frontend/build/index.html')
+    })
+
     app.listen(process.env.PORT, () => {
         return logger.info(
             `Express is listening at http://localhost:${process.env.PORT}`
         )
     })
 
-    setTimeout(() => {
-        playlist.map(async (url: string) => {
-            await download(url)
-        })
+    setInterval(() => {
+        if (state === 'idle' && uploads === 0) getFiles()
+        if (state === 'uploaded' && uploads > 0) play()
+        if (state === 'playing') getFiles()
     }, 1000)
 })()

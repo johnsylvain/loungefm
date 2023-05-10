@@ -1,9 +1,6 @@
 import React from 'react'
-import { Helmet } from 'react-helmet'
 
 function App() {
-    const [playing, setIsPlaying] = React.useState(false)
-
     return (
         <div
             style={{
@@ -13,7 +10,7 @@ function App() {
             }}
         >
             <div>
-                <audio src="http://localhost:4000/stream" controls />
+                <audio src="http://localhost:8080/stream" controls />
             </div>
         </div>
     )
