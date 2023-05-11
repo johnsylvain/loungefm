@@ -7,8 +7,8 @@
         "prettier-watch": "onchange 'src/**/*.ts' -- prettier --write {{changed}}",
         "lint": "eslint . --ext .ts",
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start:dev": "cd src/frontend && yarn && yarn build && cd .. && cd .. && ts-node-dev --respawn -- src/app.ts",
-        "start:prod": "cd src/frontend && yarn && yarn build && cd .. && cd .. && node dist/app.js",
+        "start:dev": "ts-node-dev --respawn -- src/app.ts",
+        "start:prod": "node dist/app.js",
         "prettier-format": "prettier --config .prettierrc.json 'src/**/*.ts' --write"
     },
     "dependencies": {
