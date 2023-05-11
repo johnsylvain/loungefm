@@ -59,7 +59,6 @@ class Queue {
         })
 
         this.tracks = await Promise.all(promises)
-        console.log(`Loaded ${promises.length} tracks ${this.tracks}`)
     }
 
     async getTrackBitrate(filepath) {
