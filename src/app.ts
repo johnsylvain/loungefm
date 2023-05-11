@@ -94,10 +94,6 @@ app.get('/upload', (req, res) => {
         })
     })
 
-    app.get('/', (req, res) => {
-        res.sendFile(__dirname + '/frontend/build/index.html')
-    })
-
     app.listen(process.env.PORT, () => {
         return logger.info(
             `Express is listening at http://localhost:${process.env.PORT}`

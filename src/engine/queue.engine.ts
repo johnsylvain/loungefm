@@ -59,6 +59,7 @@ class Queue {
         })
 
         this.tracks = await Promise.all(promises)
+        console.log(`Loaded ${promises.length} tracks ${this.tracks}`)
     }
 
     async getTrackBitrate(filepath) {
@@ -69,7 +70,6 @@ class Queue {
     }
 
     getNextTrack() {
-        // Loop back to the first track
         if (this.index >= this.tracks.length - 1) {
             this.index = 0
         }

@@ -3,6 +3,11 @@
     "version": "1.0.0",
     "description": "radio server",
     "main": "dist/app.js",
+    "engines": {
+        "node": "16.13.1",
+        "npm": "8.1.2",
+        "yarn": "1.22.17"
+    },
     "scripts": {
         "prettier-watch": "onchange 'src/**/*.ts' -- prettier --write {{changed}}",
         "lint": "eslint . --ext .ts",
