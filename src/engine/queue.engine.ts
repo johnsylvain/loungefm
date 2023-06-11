@@ -74,6 +74,7 @@ class Queue {
         }
 
         const track = this.tracks[this.index++]
+        console.log(track)
         this.currentTrack = track
 
         return track
@@ -87,9 +88,9 @@ class Queue {
         this.throttle.end()
     }
 
-    resume() {
+    async resume() {
+        await this.loadTracks('upload/audio')
         if (!this.started() || this.playing) return
-        console.log('Resumed')
         this.start()
     }
 
@@ -113,7 +114,11 @@ class Queue {
         this.stream = createReadStream(track.filepath)
     }
 
-    // Start broadcasting audio stream
+    async deleteAndPlay() {
+        await this.loadTracks('upload/audio')
+        this.play(true)
+    }
+
     async start() {
         const track = this.currentTrack
         if (!track) return
@@ -124,7 +129,7 @@ class Queue {
         this.stream
             .pipe(this.throttle)
             .on('data', (chunk) => this.broadcast(chunk))
-            .on('end', () => this.play(true))
+            .on('end', () => this.deleteAndPlay())
             .on('error', () => this.play(true))
     }
 }
