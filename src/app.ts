@@ -6,8 +6,10 @@ import cors from 'cors'
 import pino from 'pino'
 import queue from './engine/queue.engine'
 import './database'
+import './util/startup'
 import multer from 'multer'
-import fs from 'fs'
+
+import uploadRouter from './routes/upload.routes'
 
 dotenv.config()
 
@@ -34,14 +36,7 @@ app.use(morgan(`${process.env.MORGAN}`))
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
-
-if (!fs.existsSync('upload')) {
-    fs.mkdirSync('upload'), { recursive: true }
-}
-
-if (!fs.existsSync('upload/audio')) {
-    fs.mkdirSync('upload/audio'), { recursive: true }
-}
+app.use(uploadRouter)
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {

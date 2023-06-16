@@ -82,14 +82,12 @@ class Queue {
     pause() {
         if (!this.started() || !this.playing) return
         this.playing = false
-        console.log('Paused')
         this.throttle.removeAllListeners('end')
         this.throttle.end()
     }
 
     resume() {
         if (!this.started() || this.playing) return
-        console.log('Resumed')
         this.start()
     }
 

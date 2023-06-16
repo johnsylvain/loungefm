@@ -1,7 +1,10 @@
-import { Router } from 'express';
-import * as upload from '../controller/upload.controller';
+import { Router } from 'express'
+import * as upload from '../controller/upload.controller'
 
-const router = Router();
-router.get("/upload", upload.postFile);
+const router = Router()
 
-export default router;
+router.post('/upload', upload.postFile)
+router.get('/upload', upload.postFile)
+router.post('/upload/audio', upload.postFile)
+
+export default router

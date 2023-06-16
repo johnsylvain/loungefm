@@ -6,7 +6,7 @@
     "engines": {
         "node": "16.13.1",
         "npm": "8.1.2",
-        "yarn": "1.22.17"
+        "yarn": "1.22.19"
     },
     "scripts": {
         "prettier-watch": "onchange 'src/**/*.ts' -- prettier --write {{changed}}",
