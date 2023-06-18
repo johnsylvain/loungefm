@@ -1,3 +1,4 @@
+import { v4 as uuid } from 'uuid'
 import express from 'express'
 import * as dotenv from 'dotenv'
 import helmet from 'helmet'
@@ -44,7 +45,7 @@ const storage = multer.diskStorage({
         cb(null, 'upload/audio')
     },
     filename: function (req, file, cb) {
-        cb(null, file.originalname)
+        cb(null, `${uuid()}.${file.fieldname}`)
     },
 })
 
@@ -58,8 +59,24 @@ const fileFilter = function (req, file, cb) {
 const upload = multer({ storage: storage, fileFilter: fileFilter })
 
 app.post('/upload/audio', upload.single('mp3'), function (req, res) {
+    console.log(req)
     res.send('File uploaded successfully!')
 })
+<<<<<<< HEAD
+=======
+
+app.get('/', (req, res) => {
+    const currentTrack = queue.currentTrack
+    const index = queue.index
+
+    res.send().json({
+        uploads,
+        state,
+        currentTrack,
+        index,
+    })
+})
+>>>>>>> 04dea40dbf78a3808c4a3ddfd6547b93d10ff72b
 ;(async () => {
     const getFiles = async () => {
         await queue.loadTracks('upload/audio')
