@@ -6,9 +6,11 @@ import morgan from 'morgan'
 import cors from 'cors'
 import pino from 'pino'
 import queue from './engine/queue.engine'
-import multer from 'multer'
-import fs from 'fs'
 import './database'
+import './util/startup'
+import multer from 'multer'
+import artistRouter from './routes/artist.route'
+import songRouter from './routes/song.route'
 
 dotenv.config()
 
@@ -35,14 +37,8 @@ app.use(morgan(`${process.env.MORGAN}`))
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
-
-if (!fs.existsSync('upload')) {
-    fs.mkdirSync('upload'), { recursive: true }
-}
-
-if (!fs.existsSync('upload/audio')) {
-    fs.mkdirSync('upload/audio'), { recursive: true }
-}
+app.use(artistRouter)
+app.use(songRouter)
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -66,6 +62,8 @@ app.post('/upload/audio', upload.single('mp3'), function (req, res) {
     console.log(req)
     res.send('File uploaded successfully!')
 })
+<<<<<<< HEAD
+=======
 
 app.get('/', (req, res) => {
     const currentTrack = queue.currentTrack
@@ -78,6 +76,7 @@ app.get('/', (req, res) => {
         index,
     })
 })
+>>>>>>> 04dea40dbf78a3808c4a3ddfd6547b93d10ff72b
 ;(async () => {
     const getFiles = async () => {
         await queue.loadTracks('upload/audio')

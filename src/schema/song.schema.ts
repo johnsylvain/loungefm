@@ -1,16 +1,15 @@
 import { Schema, model } from 'mongoose'
+import * as dotenv from 'dotenv'
 
-const tracklistSchema = new Schema(
+dotenv.config()
+
+const songSchema = new Schema(
     {
-        artist: {
+        artistId: {
             type: String,
             require: true,
         },
-        number: {
-            type: Number,
-            require: true,
-        },
-        album: {
+        name: {
             type: String,
             require: true,
         },
@@ -18,11 +17,15 @@ const tracklistSchema = new Schema(
             type: String,
             require: true,
         },
-        url: {
+        link: {
             type: String,
             require: true,
         },
-        registered: {
+        art: {
+            type: String,
+            require: true,
+        },
+        source: {
             type: String,
             require: true,
         },
@@ -33,4 +36,4 @@ const tracklistSchema = new Schema(
     }
 )
 
-export default model('Upload', tracklistSchema)
+export default model('tracks', songSchema)
