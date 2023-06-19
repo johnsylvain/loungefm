@@ -7,12 +7,13 @@ import cors from 'cors'
 import pino from 'pino'
 import queue from './engine/queue.engine'
 import './database'
-import './util/startup'
+import { startup } from './util/startup'
 import multer from 'multer'
 import artistRouter from './routes/artist.route'
 import songRouter from './routes/song.route'
 
 dotenv.config()
+startup()
 
 let uploads: number = 0
 let state: string = 'idle'
