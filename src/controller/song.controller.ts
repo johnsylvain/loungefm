@@ -1,7 +1,6 @@
 import { Response, RequestHandler } from 'express'
 import mongoose, { ObjectId } from 'mongoose'
 import songSchema from '../schema/song.schema'
-import { getJSDocReturnType } from 'typescript'
 
 const isAllowed = (req, res) => {
     const referer = req.headers.referer
@@ -58,9 +57,6 @@ export const getSearch: RequestHandler = async (req, res) => {
                 {
                     $match: {
                         title: { $regex: title, $options: 'i' },
-                        art: {
-                            $ne: 'https://slikouronlife.co.za/themes/slikourapp/assets/images/Square-audio-placeholders.png',
-                        },
                     },
                 },
                 {
@@ -188,5 +184,49 @@ export const getRandom: RequestHandler = async (req, res) => {
         })
     } catch (error) {
         return res.status(303).json()
+    }
+}
+
+export const getAllTracks: RequestHandler = async (req, res) => {
+    try {
+        if (!isAllowed(req, res)) return res.status(403).end('Access denied')
+        const page: number = parseInt(`${req.query.page}`) || 1
+        const limit: number = parseInt(`${req.query.limit}`) || 10
+
+        const startIndex = (page - 1) * limit
+
+        const countQuery = songSchema.aggregate([
+            {
+                $count: 'totalCount',
+            },
+        ])
+
+        const response = await songSchema.aggregate([
+            { $sort: { createdAt: -1 } },
+            {
+                $skip: startIndex,
+            },
+            {
+                $limit: limit,
+            },
+        ])
+
+        const [totalCount, data] = await Promise.all([countQuery, response])
+
+        const total = totalCount.length > 0 ? totalCount[0].totalCount : 0
+        const totalPages = Math.ceil(total / limit)
+
+        console.log('data: ', response)
+
+        return res.status(200).json({
+            data: response,
+            total,
+            totalPages,
+            currentPage: page,
+        })
+
+        return res.status(303).json({})
+    } catch (error) {
+        return res.status(303).json({})
     }
 }
