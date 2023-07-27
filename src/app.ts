@@ -56,10 +56,6 @@ const fileFilter = (req, file, cb) => {
 }
 
 const upload = multer({ storage: storage, fileFilter: fileFilter })
-
-app.post('/upload/audio', upload.single('mp3'), (req, res) => {
-    res.json()
-})
 ;(async () => {
     const getFiles = async () => {
         await queue.loadTracks('upload/audio')
