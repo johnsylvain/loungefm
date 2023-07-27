@@ -10,7 +10,6 @@ import './database'
 import { startup } from './util/startup'
 import multer from 'multer'
 import songRouter from './routes/song.route'
-import uploadRouter from './routes/upload.route'
 
 dotenv.config()
 startup()
@@ -39,7 +38,6 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(songRouter)
-app.use('/upload', uploadRouter)
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
