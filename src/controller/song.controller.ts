@@ -1,29 +1,52 @@
 import { Response, RequestHandler } from 'express'
-import mongoose, { ObjectId } from 'mongoose'
+import mongoose from 'mongoose'
 import songSchema from '../schema/song.schema'
-
-const isAllowed = (req, res) => {
-    const referer = req.headers.referer
-
-    if (referer !== process.env.ALLOWED_DOMAIN) {
-        return true
-    }
-
-    return true
-}
+import likeSchema from '../schema/like.schema'
 
 export const getStatus: RequestHandler = async (req, res) => {
     try {
-        if (!isAllowed(req, res)) return res.status(403).end('Access denied')
         return res.status(200).json()
     } catch (error) {
-        return res.status(303).json()
+        return res.status(303)
+    }
+}
+
+export const postLike: RequestHandler = async (req, res) => {
+    try {
+        const { id, userID } = req.params
+        let liked: boolean = false
+        if (!id && userID) return res.status(303).json()
+        const results = await likeSchema.findOne({
+            songId: id,
+            userId: userID,
+        })
+
+        if (!results) {
+            liked = true
+
+            await new likeSchema({
+                songId: id,
+                userId: userID,
+            }).save()
+        } else {
+            await likeSchema.deleteOne({
+                songId: id,
+                userId: userID,
+            })
+        }
+
+        return res.status(200).json({
+            liked,
+        })
+    } catch (error) {
+        return res.status(303).json({
+            liked: false,
+        })
     }
 }
 
 export const getTrackbyID: RequestHandler = async (req, res) => {
     try {
-        if (!isAllowed(req, res)) return res.status(403).end('Access denied')
         let id: any = null
         id = req.query.id || req.params.id
         const _id = new mongoose.Types.ObjectId(id)
@@ -43,20 +66,22 @@ export const getTrackbyID: RequestHandler = async (req, res) => {
 
 export const getSearch: RequestHandler = async (req, res) => {
     try {
-        if (!isAllowed(req, res)) return res.status(403).end('Access denied')
         const page: number = parseInt(`${req.query.page}`) || 1
         const limit: number = parseInt(`${req.query.limit}`) || 10
 
         const startIndex = (page - 1) * limit
         const endIndex = page * limit
 
-        const title = req.query.title || req.params.title
+        const searchTerm = req.query.title || req.params.title
 
-        if (title) {
+        if (searchTerm) {
             const countQuery = songSchema.aggregate([
                 {
                     $match: {
-                        title: { $regex: title, $options: 'i' },
+                        $or: [
+                            { title: { $regex: searchTerm, $options: 'i' } }, // Case-insensitive title search using regex
+                            { artist: { $regex: searchTerm, $options: 'i' } }, // Case-insensitive artist search using regex
+                        ],
                     },
                 },
                 {
@@ -67,7 +92,10 @@ export const getSearch: RequestHandler = async (req, res) => {
             const response = await songSchema.aggregate([
                 {
                     $match: {
-                        title: { $regex: title, $options: 'i' },
+                        $or: [
+                            { title: { $regex: searchTerm, $options: 'i' } }, // Case-insensitive title search using regex
+                            { artist: { $regex: searchTerm, $options: 'i' } }, // Case-insensitive artist search using regex
+                        ],
                     },
                 },
                 {
@@ -98,7 +126,6 @@ export const getSearch: RequestHandler = async (req, res) => {
 
 export const getAllTracksByArtist: RequestHandler = async (req, res) => {
     try {
-        if (!isAllowed(req, res)) return res.status(403).end('Access denied')
         const page: number = parseInt(`${req.query.page}`) || 1
         const limit: number = parseInt(`${req.query.limit}`) || 10
 
@@ -163,17 +190,9 @@ export const getAllTracksByArtist: RequestHandler = async (req, res) => {
 
 export const getRandom: RequestHandler = async (req, res) => {
     try {
-        if (!isAllowed(req, res)) return res.status(403).end('Access denied')
         const limit: number = parseInt(`${req.query.limit}`) || 3
 
         const response = await songSchema.aggregate([
-            {
-                $match: {
-                    art: {
-                        $ne: 'https://slikouronlife.co.za/themes/slikourapp/assets/images/Square-audio-placeholders.png',
-                    },
-                },
-            },
             {
                 $sample: { size: limit },
             },
@@ -189,7 +208,6 @@ export const getRandom: RequestHandler = async (req, res) => {
 
 export const getAllTracks: RequestHandler = async (req, res) => {
     try {
-        if (!isAllowed(req, res)) return res.status(403).end('Access denied')
         const page: number = parseInt(`${req.query.page}`) || 1
         const limit: number = parseInt(`${req.query.limit}`) || 10
 
@@ -197,12 +215,17 @@ export const getAllTracks: RequestHandler = async (req, res) => {
 
         const countQuery = songSchema.aggregate([
             {
+                $sample: { size: limit },
+            },
+            {
                 $count: 'totalCount',
             },
         ])
 
         const response = await songSchema.aggregate([
-            { $sort: { createdAt: -1 } },
+            {
+                $sample: { size: limit },
+            },
             {
                 $skip: startIndex,
             },
@@ -216,17 +239,14 @@ export const getAllTracks: RequestHandler = async (req, res) => {
         const total = totalCount.length > 0 ? totalCount[0].totalCount : 0
         const totalPages = Math.ceil(total / limit)
 
-        console.log('data: ', response)
-
         return res.status(200).json({
             data: response,
             total,
             totalPages,
             currentPage: page,
         })
-
-        return res.status(303).json({})
     } catch (error) {
+        console.log(error)
         return res.status(303).json({})
     }
 }

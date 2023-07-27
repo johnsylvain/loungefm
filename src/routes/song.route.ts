@@ -3,11 +3,12 @@ import * as song from '../controller/song.controller'
 
 const router = Router()
 
-router.get('/track/status', song.getStatus)
-router.get('/track/search/:title', song.getSearch)
-router.get('/track/random', song.getRandom)
-router.get('/track/all', song.getAllTracks)
-//alwayson the end
-router.get('/track/:id', song.getTrackbyID)
+router.get('/song/status', song.getStatus)
+router.get('/song/search/:title', song.getSearch)
+router.get('/song/random', song.getRandom)
+router.get('/song/all', song.getAllTracks)
+router.post('/song/like/:id/:userID', song.postLike)
+// always on the end
+router.get('/song/:id', song.getTrackbyID)
 
 export default router

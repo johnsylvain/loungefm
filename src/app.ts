@@ -9,7 +9,6 @@ import queue from './engine/queue.engine'
 import './database'
 import { startup } from './util/startup'
 import multer from 'multer'
-import artistRouter from './routes/artist.route'
 import songRouter from './routes/song.route'
 
 dotenv.config()
@@ -38,19 +37,18 @@ app.use(morgan(`${process.env.MORGAN}`))
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
-app.use(artistRouter)
 app.use(songRouter)
 
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
+    destination: (req, file, cb) => {
         cb(null, 'upload/audio')
     },
-    filename: function (req, file, cb) {
+    filename: (req, file, cb) => {
         cb(null, `${uuid()}.${file.fieldname}`)
     },
 })
 
-const fileFilter = function (req, file, cb) {
+const fileFilter = (req, file, cb) => {
     if (!file.originalname.match(/\.(mp3)$/)) {
         return cb(new Error('Only MP3 files are allowed!'), false)
     }
@@ -59,9 +57,8 @@ const fileFilter = function (req, file, cb) {
 
 const upload = multer({ storage: storage, fileFilter: fileFilter })
 
-app.post('/upload/audio', upload.single('mp3'), function (req, res) {
-    console.log(req)
-    res.send('File uploaded successfully!')
+app.post('/upload/audio', upload.single('mp3'), (req, res) => {
+    res.json()
 })
 ;(async () => {
     const getFiles = async () => {
@@ -79,6 +76,7 @@ app.post('/upload/audio', upload.single('mp3'), function (req, res) {
 
     app.get('/stream', (req, res) => {
         const { id, client } = queue.addClient()
+
         res.set({
             'Content-Type': 'audio/mp3',
             'Transfer-Encoding': 'chunked',
@@ -95,9 +93,5 @@ app.post('/upload/audio', upload.single('mp3'), function (req, res) {
         )
     })
 
-    setInterval(() => {
-        if (state === 'idle' && uploads === 0) getFiles()
-        if (state === 'uploaded' && uploads > 0) play()
-        if (state === 'playing') getFiles()
-    }, 1000)
+    setInterval(() => {}, 1000)
 })()

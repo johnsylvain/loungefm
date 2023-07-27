@@ -8,6 +8,6 @@ export const startup = () => {
     if (!fs.existsSync('upload/audio')) {
         fs.mkdirSync('upload/audio'), { recursive: true }
     }
-    
+
     return null
 }
