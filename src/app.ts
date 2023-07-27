@@ -10,6 +10,7 @@ import './database'
 import { startup } from './util/startup'
 import multer from 'multer'
 import songRouter from './routes/song.route'
+import uploadRouter from './routes/upload.route'
 
 dotenv.config()
 startup()
@@ -38,6 +39,7 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(songRouter)
+app.use('/upload', uploadRouter)
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -93,5 +95,5 @@ app.post('/upload/audio', upload.single('mp3'), (req, res) => {
         )
     })
 
-    setInterval(() => {}, 1000)
+    // setInterval(() => {}, 1000)
 })()
