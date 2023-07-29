@@ -1,4 +1,3 @@
-import { v4 as uuid } from 'uuid'
 import express from 'express'
 import * as dotenv from 'dotenv'
 import helmet from 'helmet'
@@ -8,8 +7,8 @@ import pino from 'pino'
 import queue from './engine/queue.engine'
 import './database'
 import { startup } from './util/startup'
-import multer from 'multer'
 import songRouter from './routes/song.route'
+import uploadRouter from './routes/upload.route'
 
 dotenv.config()
 startup()
@@ -38,24 +37,7 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(songRouter)
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'upload/audio')
-    },
-    filename: (req, file, cb) => {
-        cb(null, `${uuid()}.${file.fieldname}`)
-    },
-})
-
-const fileFilter = (req, file, cb) => {
-    if (!file.originalname.match(/\.(mp3)$/)) {
-        return cb(new Error('Only MP3 files are allowed!'), false)
-    }
-    cb(null, true)
-}
-
-const upload = multer({ storage: storage, fileFilter: fileFilter })
+app.use(uploadRouter)
 ;(async () => {
     const getFiles = async () => {
         await queue.loadTracks('upload/audio')
@@ -88,6 +70,4 @@ const upload = multer({ storage: storage, fileFilter: fileFilter })
             `Express is listening at http://localhost:${process.env.PORT}`
         )
     })
-
-    // setInterval(() => {}, 1000)
 })()

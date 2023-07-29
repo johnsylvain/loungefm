@@ -2,6 +2,7 @@ import { Response, RequestHandler } from 'express'
 import mongoose from 'mongoose'
 import songSchema from '../schema/song.schema'
 import likeSchema from '../schema/like.schema'
+import streamSchema from '../schema/stream.schema'
 
 export const getStatus: RequestHandler = async (req, res) => {
     try {
@@ -33,6 +34,46 @@ export const postLike: RequestHandler = async (req, res) => {
                 songId: id,
                 userId: userID,
             })
+        }
+
+        return res.status(200).json({
+            liked,
+        })
+    } catch (error) {
+        return res.status(303).json({
+            liked: false,
+        })
+    }
+}
+
+export const postStream: RequestHandler = async (req, res) => {
+    try {
+        const { id, userID, songDuration, playDuration } = req.params
+        console.log(id, userID, songDuration, playDuration)
+        await new streamSchema({
+            songId: id,
+            userId: userID,
+            songDuration: parseInt(songDuration),
+            playDuration: parseInt(playDuration),
+        })
+        return res.status(200)
+    } catch (error) {
+        return res.status(303)
+    }
+}
+
+export const getLike: RequestHandler = async (req, res) => {
+    try {
+        const { id, userID } = req.params
+        let liked: boolean = false
+        if (!id && userID) return res.status(303).json()
+        const results = await likeSchema.findOne({
+            songId: id,
+            userId: userID,
+        })
+
+        if (results) {
+            liked = true
         }
 
         return res.status(200).json({
