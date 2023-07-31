@@ -254,34 +254,29 @@ export const getAllTracks: RequestHandler = async (req, res) => {
 
         const startIndex = (page - 1) * limit
 
-        const countQuery = songSchema.aggregate([
+        // Fetch the total count of documents
+        const totalQueryResult = await songSchema.aggregate([
             {
-                $sample: { size: limit },
-            },
-            {
-                $count: 'totalCount',
-            },
-        ])
-
-        const response = await songSchema.aggregate([
-            {
-                $sample: { size: limit },
-            },
-            {
-                $skip: startIndex,
-            },
-            {
-                $limit: limit,
+                $group: {
+                    _id: null,
+                    totalCount: { $sum: 1 },
+                },
             },
         ])
 
-        const [totalCount, data] = await Promise.all([countQuery, response])
-
-        const total = totalCount.length > 0 ? totalCount[0].totalCount : 0
+        const total =
+            totalQueryResult.length > 0 ? totalQueryResult[0].totalCount : 0
         const totalPages = Math.ceil(total / limit)
 
+        // Fetch random data without limit and perform pagination manually
+        const response = await songSchema.aggregate([
+            { $sample: { size: total } },
+        ])
+
+        const data = response.slice(startIndex, startIndex + limit)
+
         return res.status(200).json({
-            data: response,
+            data,
             total,
             totalPages,
             currentPage: page,
