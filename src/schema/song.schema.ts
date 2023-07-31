@@ -4,7 +4,7 @@ dotenv.config()
 
 const songSchema = new Schema(
     {
-        artistId: {
+        userId: {
             type: String,
             require: false,
             default: null,
@@ -100,6 +100,25 @@ const songSchema = new Schema(
             type: Number,
             require: false,
             default: null,
+        },
+        source: {
+            type: {
+                name: String,
+                link: String,
+                website: String,
+            },
+            require: false,
+            default: null,
+        },
+        scraped: {
+            type: Boolean,
+            require: true,
+            default: true,
+        },
+        downloadable: {
+            type: Boolean,
+            require: true,
+            default: false,
         },
         comments: {
             type: [String],
