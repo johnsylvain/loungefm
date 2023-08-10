@@ -6,15 +6,15 @@ import cors from 'cors'
 import pino from 'pino'
 import queue from './engine/queue.engine'
 import './database'
-import { startup } from './util/startup'
-import songRouter from './routes/song.route'
 import uploadRouter from './routes/upload.route'
+import rateLimit from 'express-rate-limit'
 
 dotenv.config()
-startup()
-
 let uploads: number = 0
 let state: string = 'idle'
+const currentState = {
+    streaming: false,
+}
 
 const logger = pino({ level: 'info' })
 const app = express()
@@ -29,14 +29,16 @@ const reqOptions = {
 
 app.use(
     helmet({
-        crossOriginResourcePolicy: false,
+        crossOriginResourcePolicy: true,
     })
 )
+
+app.use(limiter)
 app.use(morgan(`${process.env.MORGAN}`))
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
-app.use(songRouter)
+
 app.use(uploadRouter)
 ;(async () => {
     const getFiles = async () => {
@@ -53,16 +55,20 @@ app.use(uploadRouter)
     }
 
     app.get('/stream', (req, res) => {
-        const { id, client } = queue.addClient()
-
-        res.set({
-            'Content-Type': 'audio/mp3',
-            'Transfer-Encoding': 'chunked',
-        }).status(200)
-        client.pipe(res)
-        req.on('close', () => {
-            queue.removeClient(id)
-        })
+        const { streaming } = currentState
+        if (streaming) {
+            const { id, client } = queue.addClient()
+            res.set({
+                'Content-Type': 'audio/mp3',
+                'Transfer-Encoding': 'chunked',
+            }).status(200)
+            client.pipe(res)
+            req.on('close', () => {
+                queue.removeClient(id)
+            })
+        } else {
+            return res.status(300).json()
+        }
     })
 
     app.listen(process.env.PORT, () => {

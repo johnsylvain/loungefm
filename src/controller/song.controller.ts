@@ -17,6 +17,7 @@ export const postLike: RequestHandler = async (req, res) => {
         const { id, userID } = req.params
         let liked: boolean = false
         if (!id && userID) return res.status(303).json()
+
         const results = await likeSchema.findOne({
             songId: id,
             userId: userID,
@@ -49,7 +50,6 @@ export const postLike: RequestHandler = async (req, res) => {
 export const postStream: RequestHandler = async (req, res) => {
     try {
         const { id, userID, songDuration, playDuration } = req.params
-        console.log(id, userID, songDuration, playDuration)
         await new streamSchema({
             songId: id,
             userId: userID,
@@ -179,13 +179,6 @@ export const getAllTracksByArtist: RequestHandler = async (req, res) => {
             const countQuery = songSchema.aggregate([
                 {
                     $match: {
-                        art: {
-                            $ne: 'https://slikouronlife.co.za/themes/slikourapp/assets/images/Square-audio-placeholders.png',
-                        },
-                    },
-                },
-                {
-                    $match: {
                         artist: { $regex: title, $options: 'i' },
                     },
                 },
@@ -198,9 +191,6 @@ export const getAllTracksByArtist: RequestHandler = async (req, res) => {
                 {
                     $match: {
                         title: { $regex: title, $options: 'i' },
-                        art: {
-                            $ne: 'https://slikouronlife.co.za/themes/slikourapp/assets/images/Square-audio-placeholders.png',
-                        },
                     },
                 },
                 {
@@ -268,7 +258,6 @@ export const getAllTracks: RequestHandler = async (req, res) => {
             totalQueryResult.length > 0 ? totalQueryResult[0].totalCount : 0
         const totalPages = Math.ceil(total / limit)
 
-        // Fetch random data without limit and perform pagination manually
         const response = await songSchema.aggregate([
             { $sample: { size: total } },
         ])
