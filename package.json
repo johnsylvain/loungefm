@@ -51,6 +51,7 @@
         "nodemon": "^2.0.22",
         "onchange": "^7.1.0",
         "pino": "^8.11.0",
+        "react-native-reanimated": "^3.4.2",
         "socket.io": "^4.6.1",
         "throttle": "^1.0.3",
         "ts-node-dev": "^2.0.0",
