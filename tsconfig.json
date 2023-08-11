@@ -11,5 +11,12 @@
         "skipLibCheck": true
     },
     "include": ["src/", "src/pages/*"],
+    "exclude": [
+        "__trash__/userAuth.route.ts",
+        "__trash__/auth.controller.ts",
+        "__trash__/service",
+        "__trash__/middleware",
+        "__trash__/user.model.ts"
+    ],
     "lib": ["es2015"]
 }

@@ -9,4 +9,4 @@ export const createContext = ({ req, res }: CreateExpressContextOptions) => ({
 
 export type Context = inferAsyncReturnType<typeof createContext>
 
-export const trpc = initTRPC.context().create()
+export const trpc = initTRPC.context<Context>().create()
