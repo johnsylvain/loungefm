@@ -1,65 +1,33 @@
 import express from 'express'
-import * as dotenv from 'dotenv'
-import helmet from 'helmet'
-import morgan from 'morgan'
+import { createExpressMiddleware } from '@trpc/server/adapters/express'
+import dotenv from 'dotenv'
 import cors from 'cors'
-import pino from 'pino'
-import queue from './engine/queue.engine'
-import './database'
-import { startup } from './util/startup'
-import songRouter from './routes/song.route'
-import uploadRouter from './routes/upload.route'
+import { createContext } from './utils/trpc'
+import { database as connectDatabase } from './utils/database'
+import { apiRoute } from './routes/api.route'
+import { renderTrpcPanel } from 'trpc-panel'
 
 dotenv.config()
-startup()
-
-let uploads: number = 0
-let state: string = 'idle'
-
-const logger = pino({ level: 'info' })
 const app = express()
+app.use(cors())
 
 app.use(
-    helmet({
-        crossOriginResourcePolicy: false,
+    '/api',
+    createExpressMiddleware({
+        router: apiRoute,
+        createContext,
     })
 )
-app.use(morgan(`${process.env.MORGAN}`))
-app.use(cors())
-app.use(express.json())
-app.use(express.urlencoded({ extended: false }))
-app.use(songRouter)
-app.use(uploadRouter)
-;(async () => {
-    const getFiles = async () => {
-        await queue.loadTracks('upload/audio')
-        uploads = parseInt(`${queue.tracks.length}`)
-        if (uploads > 0) {
-            state = 'uploaded'
-        }
-    }
 
-    const play = async () => {
-        queue.play()
-        state = 'playing'
-    }
+app.use('/panel', (_, res) => {
+    return res.send(
+        renderTrpcPanel(apiRoute, { url: 'http://localhost:8080/api' })
+    )
+})
 
-    app.get('/stream', (req, res) => {
-        const { id, client } = queue.addClient()
+app.listen(process.env.PORT, () => {
+    console.log(`🚀 Server listening on port ${process.env.PORT}`)
+    connectDatabase()
+})
 
-        res.set({
-            'Content-Type': 'audio/mp3',
-            'Transfer-Encoding': 'chunked',
-        }).status(200)
-        client.pipe(res)
-        req.on('close', () => {
-            queue.removeClient(id)
-        })
-    })
-
-    app.listen(process.env.PORT, () => {
-        return logger.info(
-            `Express is listening at http://localhost:${process.env.PORT}`
-        )
-    })
-})()
+export type ApiRoute = typeof apiRoute
