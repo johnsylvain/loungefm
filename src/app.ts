@@ -5,6 +5,7 @@ import cors from 'cors'
 import { createContext } from './utils/trpc'
 import { database as connectDatabase } from './utils/database'
 import { apiRoute } from './routes/api.route'
+import { renderTrpcPanel } from 'trpc-panel'
 
 dotenv.config()
 const app = express()
@@ -17,6 +18,12 @@ app.use(
         createContext,
     })
 )
+
+app.use('/panel', (_, res) => {
+    return res.send(
+        renderTrpcPanel(apiRoute, { url: 'http://localhost:8080/api' })
+    )
+})
 
 app.listen(process.env.PORT, () => {
     console.log(`🚀 Server listening on port ${process.env.PORT}`)
